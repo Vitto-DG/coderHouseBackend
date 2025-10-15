@@ -1,0 +1,11 @@
+[1] Instalar y configurar Git
+[2] Crear o entrar en el proyecto
+[3] git init
+[4] git add . && git commit -m "Primer commit"
+[5] Crear clave SSH (una vez por máquina)
+[6] Probar conexión con GitHub
+[7] Crear repo remoto (gh o manual)
+[8] git remote add origin <URL>
+[9] git push -u origin main
+
+
