@@ -125,7 +125,26 @@ LocalStore:
 
 
     let usuarioRecuperado = JSON.parse(localStorage.getItem('usuario'));
-    console.log(usuarioRecuperado.nomre); // Ana
+    console.log(usuarioRecuperado.nomre); // Ana/Vitto
+
+  // Borrar datos = .removeItem()
+
+    Para datos puntuales y especificos.
+
+  localStorage.removeItem('clave');
+  sessionStorage.removeItem('clave');
+
+    Para borrar todos los datos - .clear()
+
+  localStorage.clear();
+  sessionStorage.clear();
+
+
+
+
+
+
+
 */
 
 // Programa de aplicacion
@@ -136,16 +155,18 @@ function menu(){
   let opcion;
   do{
     opcion = parseInt(prompt("Inventario.\n" +
-       "1 - Ingresar Producto\n" +
+       "1 - Agregar Producto\n" +
         "2 - Modificar Producto\n" +
          "3 - Borrar producto\n" +
-          "4 - Mostrar Inventario\n" + "5 - Contacto/Mensaje\n" +
-           "6 - Salir"
+          "4 - Mostrar Inventario\n" +
+           "5 - Ver Bitacora\n" +
+            "6 - Agregar a Bitacora\n" +
+              "7 - Salir"
           ));
 
           switch (opcion){
             case 1:
-              ingresarProducto();
+              agregarProducto();
               break;
             case 2:
               modificarProducto();
@@ -157,33 +178,155 @@ function menu(){
               mostrarInventario();
               break;
             case 5:
-              contacto();
+              verBitacora();
               break;
             case 6:
+              nuevaBitacora();
+              break;
+            case 7:
               alert("Saliento del programa...");
               break;
             default:
               alert("Opcion inválida. Intente nuevamente.");
           }
-  } while (opcion !== 6);
+  } while (opcion !== 7);
 }
 
-// Definimos la clase Producto
 
+// Definimos la clase Producto
 class Producto {
-  constructor(marca, modelo, tipo){
+  static id = 0;
+  constructor(marca, modelo, tipo, precio, cantidad){
+    this.id = ++Producto.id;
     this.marca = marca;
     this.modelo = modelo;
     this.tipo = tipo;
-    this.precio = this.precio;
+    this.precio = precio;
+    this.cantidad = cantidad;
   }
   describir(){
-    return `Marca: ${this.marca}, Modelo: ${this.modelo}, Tipo: ${this.tipo}, Precio: $${this.precio}`;
+    return "ID: " + this.id + "\nMarca: " + this.marca + "\nModelo: " + this.modelo + "\nTipo: " + this.tipo + "\nPrecio: $" + this.precio + "\nCantidad: " + this.cantidad;
   }
 }
 
+
 // Manejo del almacenamiento
+// array global sincronizado con localStorage
+let inventarioData = JSON.parse(localStorage.getItem("inventario")) || [];
+let inventario = inventarioData.map(p => new Producto(p.marca, p.modelo, p.tipo, p.precio, p.cantidad));
 
-let inventario = JSON.parse(localStorage.getItem("inventario")) || [];
+// Para que
 
-agregar();
+// actualizar en cada edicion
+function refreshInventario(){
+  localStorage.setItem("inventario", JSON.stringify(inventario));
+}
+
+// Agregar producto
+function agregarProducto(){
+  const marca = prompt("Ingresar la marca del producto:");
+  const modelo = prompt("Ingresar el modelo:");
+  const tipo = prompt("Ingresar el tipo:");
+  const precio = parseFloat(prompt("Ingresar precio:"));
+  const cantidad = parseInt(prompt("Ingresar cantidad:"));
+
+  const nuevoProducto = new Producto(marca, modelo, tipo, precio, cantidad);
+  inventario.push(nuevoProducto);
+  refreshInventario();
+  alert("Producto agregado exitosamente.");
+  console.log()
+}
+
+// Modificar producto
+function modificarProducto(){
+  mostrarInventario();
+  const id = parseInt(prompt("Ingrese el id:"));
+
+  const producto = inventario.find(p => p.id === id);
+
+  if(producto) {
+    producto.marca = prompt("Nueva marca: ", producto.marca);
+    producto.modelo = prompt("Nueva modelo: ", producto.modelo);
+    producto.tipo = prompt("Nueva tipo: ", producto.tipo);
+    producto.precio = parseFloat(prompt("Nueva precio: ", producto.precio));
+    producto.cantidad = parseInt(prompt("Nueva cantidad: ", producto.cantidad));
+    refreshInventario();
+    alert("Producto actualizado con exito.");
+  } else {
+    alert("No existe un producto con ese ID.")
+  }
+}
+
+// Borrar producto
+function borrarProducto(){
+  mostrarInventario();
+  const id = parseInt(prompt("ingrese ID del producto a borrar:"));
+
+  const indice = inventario.findIndex(p => p.id === id);
+
+  if (indice !== -1){
+    inventario.splice(indice, 1);
+    refreshInventario();
+    alert("Producto eliminado con exito.")
+  } else {
+    alert("No existe un producto con ese ID.")
+  }
+}
+
+// Mostrar inventario
+function mostrarInventario(){
+  if(inventario.length === 0){
+    alert("No hay productos.")
+  } else {
+    let lista = "Inventario:\n\n";
+    for (const producto of inventario) {
+      lista += producto.describir() + "\n===================\n";
+    }
+    alert(lista);
+  }
+}
+
+// Bitacora
+
+let bitacora = JSON.parse(localStorage.getItem("bitacora")) || [];
+
+function guardarBitacora(){
+  localStorage.setItem("bitacora", JSON.stringify(bitacora));
+}
+
+function verBitacora(){
+  if(bitacora.length === 0){
+    alert("No hay mensajes.");
+  } else {
+    let lista = "Bitacora del deposito:\n\n";
+    for (const mensaje of bitacora){
+      lista += "+ " + mensaje + "\n"
+    }
+    alert(lista);
+  }
+}
+
+function nuevaBitacora(){
+  const texto = prompt("Ingresar mensaje o nota:");
+
+  if(texto && texto.trim() !== ""){
+    const fecha = new Date().toLocaleDateString("es-AR");
+    bitacora.push(fecha + " - " + texto);
+    guardarBitacora();
+    alert("Mensaje agregado.");
+  } else {
+    alert("Mensaje vacío. No se agregó nada.");
+  }
+}
+
+// Para limpiar todos los mensajes.
+function limpiarBitacora(){
+  const confirmar = confirm("Desea borrar todos los mensajes de la bitacoera?");
+  if(confirmar){
+    bitacora = [];
+    guardarBitacora();
+    alert("Bitacora vaciada.")
+  }
+}
+
+menu();
