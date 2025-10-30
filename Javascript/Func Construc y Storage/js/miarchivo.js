@@ -215,7 +215,6 @@ class Producto {
 let inventarioData = JSON.parse(localStorage.getItem("inventario")) || [];
 let inventario = inventarioData.map(p => new Producto(p.marca, p.modelo, p.tipo, p.precio, p.cantidad));
 
-// Para que
 
 // actualizar en cada edicion
 function refreshInventario(){
