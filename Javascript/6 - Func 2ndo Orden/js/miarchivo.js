@@ -127,37 +127,104 @@ Menu Principal
 */
 
 
+// Funcion de menu principal
 
-let opcion
+function menuPrincipal(){
 
-while (opcion !== 5) {
-  opcion = prompt(
-    "Tienda de instrumentos" +
-    "1 - Buscar" +
-    "2 - Ver Carrito" +
-    "3 - Lista de deseos" +
-    "4 - Contacto" +
-    "5 - Salir"
-  );
+  let opcion
 
-  switch (opcion){
-    case 1: menuBuscar();
-            break;
-    case 2: menuCarrito();
-            break;
-    case 3: verListaDeseos();
-            break;
-    case 4: prompt("Contacto: contacto@tiendamusical.com\n o dejar mensaje:");
-            break;
-    case 5: alert("Gracias por visitarnos.");
-            break;
-    default: alert("No ha seleccionado ninguna opcion.")
+  while (opcion !== 5) {
+    opcion = prompt(
+      "Tienda de instrumentos" +
+      "1 - Buscar" +
+      "2 - Ver Carrito" +
+      "3 - Lista de deseos" +
+      "4 - Contacto" +
+      "5 - Salir"
+    );
+
+    switch (opcion){
+      case 1: menuBuscar();
+              break;
+      case 2: menuCarrito();
+              break;
+      case 3: verListaDeseos();
+              break;
+      case 4: prompt("Contacto: contacto@tiendamusical.com\n o dejar mensaje:");
+              break;
+      case 5: alert("Gracias por visitarnos.");
+              break;
+      default: alert("No ha seleccionado ninguna opcion.")
+    }
   }
 }
 
-function buscar(){
-  productos.find(producto => producto.nombre())
+menuPrincipal();
 
+function menuBuscar(){
+
+  let filtros = {};
+  let salir = false;
+
+  const comando = prompt("Que estas buscando?\n# y detalle para filtrar\n/# para quitar los filtros\nC y articulo para agregar al carrito\nVC para ver el carrito\nMP para ir al menu principal\nS para salir")
+
+  while (!salir){
+    if(!comando) continue;
+
+    switch(true){
+      // al menu principal
+      case comando.toUpperCase() === "MP" : salir = true;
+      break;
+
+      // Salir del programa
+      case comando.startsWith("#") :
+      const [propiedad, valor] = comando.slice(1).split("=");
+      filtros[propiedad] = valor?.toLocaleLowerCase();
+      break;
+
+      // Quitar filtros
+      case comando === "/#" :
+        filtros = {};
+        break;
+
+      //Ver carrito
+      case comando.toUpperCase() === "VC" :
+        menuCarrito();
+        break;
+
+      //Agregar al carrito
+      case comando.toUpperCase().startsWith("C ") :
+      const nombre = comando.slice(2).toLowerCase();
+      const producto = productos.find(p => p.nombre.toLowerCase().includes(nombre));
+
+      if(producto){
+        carrito.push(producto);
+        alert(producto.nombre + "fue agregado al carrito");
+      }else{
+        alert("Producto no encontrado.");
+      }
+      break;
+
+      // Buscar o filtrar
+      default:
+        let resultados = productos.filter(p => p.nombre.toLowerCase().includes(comando.toLowerCase()) ||
+      p.marca.toLowerCase().includes(comando.toLowerCase())
+    );
+
+    // Filtros activos
+    for (const [propiedad, valor] of Object.entries(filtros)){
+      resultados = resultados.filter(p => p[propiedad]?.toString().toLocaleLowerCase().includes(valor));
+    }
+
+    if(resultados.length > 0) {
+      console.log("Resultados:");
+      console.log(resultados);
+      alert("Se encontraron " + resultados.length + "productos. (Ver en consola)");
+    } else {
+      alert("No se encontraron coincidencias.")
+    }
+  }
+  }
 }
 
 console.log(buscar())
